@@ -19,14 +19,15 @@
  * and reacts by incrementing the display. This is done in the usual clock
  * fashion: the hour increments when the minutes roll over to zero.
  * 
- * @author Michael Kölling and David J. Barnes
- * @version 2016.02.29
+ * @author Michael Kölling and David J. Barnes modified by Brennen Lui
+ * @version 2026.02.25
  */
 public class ClockDisplay
 {
     private NumberDisplay hours;
     private NumberDisplay minutes;
     private String displayString;    // simulates the actual display
+    private String meridian;
     
     /**
      * Constructor for ClockDisplay objects. This constructor 
@@ -34,8 +35,9 @@ public class ClockDisplay
      */
     public ClockDisplay()
     {
-        hours = new NumberDisplay(24);
+        hours = new NumberDisplay(12);
         minutes = new NumberDisplay(60);
+        meridian = "AM";
         updateDisplay();
     }
 
@@ -44,11 +46,11 @@ public class ClockDisplay
      * creates a new clock set at the time specified by the 
      * parameters.
      */
-    public ClockDisplay(int hour, int minute)
+    public ClockDisplay(int hour, int minute, String meridian)
     {
-        hours = new NumberDisplay(24);
+        hours = new NumberDisplay(12);
         minutes = new NumberDisplay(60);
-        setTime(hour, minute);
+        setTime(hour, minute, meridian);
     }
 
     /**
@@ -59,6 +61,14 @@ public class ClockDisplay
     {
         minutes.increment();
         if(minutes.getValue() == 0) {  // it just rolled over!
+            if (hours.getValue() == 11){
+                if (meridian.equals("AM")){
+                    meridian = "PM";
+                }
+                else{
+                    meridian = "AM";
+                }
+            }
             hours.increment();
         }
         updateDisplay();
@@ -68,11 +78,12 @@ public class ClockDisplay
      * Set the time of the display to the specified hour and
      * minute.
      */
-    public void setTime(int hour, int minute)
+    public void setTime(int hour, int minute, String meridian)
     {
-        hours.setValue(hour);
+        hours.setValue(hour % 12);
         minutes.setValue(minute);
-        updateDisplay();
+        this.meridian = meridian;
+        updateDisplay(); 
     }
 
     /**
@@ -88,7 +99,19 @@ public class ClockDisplay
      */
     private void updateDisplay()
     {
-        displayString = hours.getDisplayValue() + ":" + 
-                        minutes.getDisplayValue();
+        int displayHour = hours.getValue();
+        if (displayHour == 0){
+            displayHour = 12;    
+        }
+        
+        String hourString;
+        if (displayHour < 10){
+            hourString = "0" + displayHour;
+        }
+        else{
+            hourString = "" + displayHour;
+        }
+        displayString = hourString + ":" + 
+                        minutes.getDisplayValue() + " " + meridian;
     }
 }
